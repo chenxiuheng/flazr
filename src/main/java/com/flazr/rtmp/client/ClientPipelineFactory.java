@@ -23,6 +23,7 @@ import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.Channels;
 
+import com.flazr.rtmp.RtmpAggregator;
 import com.flazr.rtmp.RtmpDecoder;
 import com.flazr.rtmp.RtmpEncoder;
 
@@ -39,6 +40,7 @@ public class ClientPipelineFactory implements ChannelPipelineFactory {
         final ChannelPipeline pipeline = Channels.pipeline();
         pipeline.addLast("handshaker", new ClientHandshakeHandler(options));
         pipeline.addLast("decoder", new RtmpDecoder());
+        pipeline.addLast("aggregator", new RtmpAggregator());
         pipeline.addLast("encoder", new RtmpEncoder());
 //        if(options.getLoad() == 1) {
 //            pipeline.addLast("executor", new ExecutionHandler(

@@ -19,13 +19,13 @@
 
 package com.flazr.rtmp.server;
 
-import com.flazr.rtmp.RtmpDecoder;
-import com.flazr.rtmp.RtmpEncoder;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.Channels;
-import org.jboss.netty.handler.execution.ExecutionHandler;
-import org.jboss.netty.handler.execution.OrderedMemoryAwareThreadPoolExecutor;
+
+import com.flazr.rtmp.RtmpAggregator;
+import com.flazr.rtmp.RtmpDecoder;
+import com.flazr.rtmp.RtmpEncoder;
 
 public class ServerPipelineFactory implements ChannelPipelineFactory {
 
@@ -34,6 +34,7 @@ public class ServerPipelineFactory implements ChannelPipelineFactory {
         ChannelPipeline pipeline = Channels.pipeline();        
         pipeline.addLast("handshaker", new ServerHandshakeHandler());
         pipeline.addLast("decoder", new RtmpDecoder());
+        pipeline.addLast("aggregator", new RtmpAggregator());
         pipeline.addLast("encoder", new RtmpEncoder());
 //        pipeline.addLast("executor", new ExecutionHandler(
 //                new OrderedMemoryAwareThreadPoolExecutor(16, 1048576, 1048576)));
