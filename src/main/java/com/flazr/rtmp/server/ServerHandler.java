@@ -19,24 +19,9 @@
 
 package com.flazr.rtmp.server;
 
-import com.flazr.rtmp.message.BytesRead;
-import com.flazr.rtmp.message.ChunkSize;
-import com.flazr.rtmp.message.Control;
-import com.flazr.rtmp.RtmpMessage;
-import com.flazr.rtmp.RtmpReader;
-import com.flazr.rtmp.RtmpPublisher;
-import com.flazr.rtmp.RtmpWriter;
-import com.flazr.rtmp.message.Audio;
-import com.flazr.rtmp.message.Command;
-import com.flazr.rtmp.message.DataMessage;
-import com.flazr.rtmp.message.Metadata;
-import com.flazr.rtmp.message.SetPeerBw;
-import com.flazr.rtmp.message.Video;
-import com.flazr.rtmp.message.WindowAckSize;
-
-import com.flazr.util.ChannelUtils;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelFutureListener;
@@ -50,6 +35,22 @@ import org.jboss.netty.channel.WriteCompletionEvent;
 import org.jboss.netty.channel.group.ChannelGroup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.flazr.rtmp.RtmpMessage;
+import com.flazr.rtmp.RtmpPublisher;
+import com.flazr.rtmp.RtmpReader;
+import com.flazr.rtmp.RtmpWriter;
+import com.flazr.rtmp.message.Audio;
+import com.flazr.rtmp.message.BytesRead;
+import com.flazr.rtmp.message.ChunkSize;
+import com.flazr.rtmp.message.Command;
+import com.flazr.rtmp.message.Control;
+import com.flazr.rtmp.message.DataMessage;
+import com.flazr.rtmp.message.Metadata;
+import com.flazr.rtmp.message.SetPeerBw;
+import com.flazr.rtmp.message.Video;
+import com.flazr.rtmp.message.WindowAckSize;
+import com.flazr.util.ChannelUtils;
 
 @ChannelPipelineCoverage("one")
 public class ServerHandler extends SimpleChannelHandler {
@@ -256,12 +257,24 @@ public class ServerHandler extends SimpleChannelHandler {
         clientId = channel.getId() + "";        
         application = ServerApplication.get(appName); // TODO auth, validation
         logger.info("connect, client id: {}, application: {}", clientId, application);
+
+        channel.write(new RtmpMessage[]{
+        		new WindowAckSize(bytesWrittenWindow),
+        		SetPeerBw.dynamic(bytesReadWindow),
+        		Control.streamBegin(streamId),
+        		Command.connectSuccess(connect.getTransactionId()),
+        		Command.onBWDone()
+        });
+        
+        channel.write(new WindowAckSize(bytesWrittenWindow));
+        /**
         channel.write(new WindowAckSize(bytesWrittenWindow));
         channel.write(SetPeerBw.dynamic(bytesReadWindow));
         channel.write(Control.streamBegin(streamId));
         final Command result = Command.connectSuccess(connect.getTransactionId());
         channel.write(result);
         channel.write(Command.onBWDone());
+        */
     }
 
     private void playResponse(final Channel channel, final Command play) {

@@ -47,8 +47,19 @@ public class RtmpEncoder extends SimpleChannelDownstreamHandler {
     }
 
     @Override
-    public void writeRequested(final ChannelHandlerContext ctx, final MessageEvent e) {        
-        Channels.write(ctx, e.getFuture(), encode((RtmpMessage) e.getMessage()));
+    public void writeRequested(final ChannelHandlerContext ctx, final MessageEvent e) {
+    	if (e.getMessage() instanceof RtmpMessage) {
+    		Channels.write(ctx, e.getFuture(), encode((RtmpMessage) e.getMessage()));
+    	} else {
+    		RtmpMessage[] msgs = (RtmpMessage[])e.getMessage();
+    		ChannelBuffer buf = ChannelBuffers.buffer(1024);
+    		for (int i = 0; i < msgs.length; i++) {
+    			RtmpMessage msg = msgs[i];
+    			buf.writeBytes(encode(msg));
+			}
+
+    		Channels.write(ctx, e.getFuture(), buf);
+    	}
     }
 
     public ChannelBuffer encode(final RtmpMessage message) {
