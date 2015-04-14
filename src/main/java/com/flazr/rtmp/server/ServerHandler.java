@@ -265,8 +265,7 @@ public class ServerHandler extends SimpleChannelHandler {
         		Command.connectSuccess(connect.getTransactionId()),
         		Command.onBWDone()
         });
-        
-        channel.write(new WindowAckSize(bytesWrittenWindow));
+
         /**
         channel.write(new WindowAckSize(bytesWrittenWindow));
         channel.write(SetPeerBw.dynamic(bytesReadWindow));
